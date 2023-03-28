@@ -26,14 +26,27 @@ public class Exercise_2 {
     private static class VProg extends AbstractFunction3<Long,Integer,Integer,Integer> implements Serializable {
         @Override
         public Integer apply(Long vertexID, Integer vertexValue, Integer message) {
-            return null;
+            if (message == Integer.MAX_VALUE) {
+                return vertexValue;
+            } else {
+                return Math.min(vertexValue, message); //update value with the shortest path
+            }
         }
     }
 
     private static class sendMsg extends AbstractFunction1<EdgeTriplet<Integer,Integer>, Iterator<Tuple2<Object,Integer>>> implements Serializable {
         @Override
         public Iterator<Tuple2<Object, Integer>> apply(EdgeTriplet<Integer, Integer> triplet) {
-            return null;
+            Tuple2<Object,Integer> sourceVertex = triplet.toTuple()._1();
+            Tuple2<Object,Integer> dstVertex = triplet.toTuple()._2();
+            Integer weight = triplet.attr();
+
+            if (sourceVertex._2 == Integer.MAX_VALUE) {
+                return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object,Integer>>().iterator()).asScala();
+            } else {
+                //sum of current weight + new weight
+                return JavaConverters.asScalaIteratorConverter(Arrays.asList(new Tuple2<Object,Integer>(triplet.dstId(), weight + triplet.srcAttr())).iterator()).asScala();
+            }
         }
     }
 
