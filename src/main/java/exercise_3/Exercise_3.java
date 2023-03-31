@@ -29,7 +29,7 @@ public class Exercise_3 {
             if (message._1 == Integer.MAX_VALUE) {
                 return vertexValue;
             } else {
-                return new Vertex(Math.min(vertexValue._1, message._1)); //update value with the shortest path
+                return new Vertex(Math.min(vertexValue._1, message._1), message._2); //update value with the shortest path and visited nodes
             }
         }
     }
@@ -38,14 +38,15 @@ public class Exercise_3 {
         @Override
         public Iterator<Tuple2<Object, Vertex>> apply(EdgeTriplet<Vertex, Integer> triplet) {
             Tuple2<Object,Vertex> sourceVertex = triplet.toTuple()._1();
-            Tuple2<Object,Vertex> dstVertex = triplet.toTuple()._2();
             Integer weight = triplet.attr();
 
             if (sourceVertex._2._1 == Integer.MAX_VALUE) {
                 return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object,Vertex>>().iterator()).asScala();
             } else {
-                //sum of current weight + new weight
-                return JavaConverters.asScalaIteratorConverter(Arrays.asList(new Tuple2<Object,Vertex>(triplet.dstId(), new Vertex(weight + triplet.srcAttr()._1))).iterator()).asScala();
+                //sum of current weight + new weight and add vertex to list
+                Vertex vertex = new Vertex(weight + triplet.srcAttr()._1, triplet.srcAttr()._2);
+                vertex._2.add(triplet.dstId());
+                return JavaConverters.asScalaIteratorConverter(Arrays.asList(new Tuple2<Object,Vertex>(triplet.dstId(), vertex)).iterator()).asScala();
             }
         }
     }
@@ -104,7 +105,13 @@ public class Exercise_3 {
                 .toJavaRDD()
                 .foreach(v -> {
                     Tuple2<Object,Vertex> vertex = (Tuple2<Object,Vertex>)v;
-                    System.out.println("Minimum cost to get from "+labels.get(1l)+" to "+labels.get(vertex._1)+" is "+vertex._2._1);
+                    String result = "Minimum cost to get from "+labels.get(1l)+" to "+ labels.get(vertex._1)+" is [";
+                    for (int i=0;i<vertex._2._2.size();i++) {
+                        if (i!=0) result+=",";
+                        result+=labels.get(vertex._2._2.get(i));
+                    }
+                    result += "] with cost: "+vertex._2._1;
+                    System.out.println(result);
                 });
     }
 	
