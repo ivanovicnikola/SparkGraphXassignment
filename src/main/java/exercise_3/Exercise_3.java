@@ -26,10 +26,10 @@ public class Exercise_3 {
     private static class VProg extends AbstractFunction3<Long,Vertex,Vertex,Vertex> implements Serializable {
         @Override
         public Vertex apply(Long vertexID, Vertex vertexValue, Vertex message) {
-            if (message._1 == Integer.MAX_VALUE) {
+            if (message._1 == Integer.MAX_VALUE || vertexValue._1 < message._1){
                 return vertexValue;
             } else {
-                return new Vertex(Math.min(vertexValue._1, message._1), message._2); //update value with the shortest path and visited nodes
+                return message;
             }
         }
     }
@@ -37,15 +37,15 @@ public class Exercise_3 {
     private static class sendMsg extends AbstractFunction1<EdgeTriplet<Vertex,Integer>, Iterator<Tuple2<Object,Vertex>>> implements Serializable {
         @Override
         public Iterator<Tuple2<Object, Vertex>> apply(EdgeTriplet<Vertex, Integer> triplet) {
-            Tuple2<Object,Vertex> sourceVertex = triplet.toTuple()._1();
             Integer weight = triplet.attr();
 
-            if (sourceVertex._2._1 == Integer.MAX_VALUE) {
+            if (triplet.srcAttr()._1 == Integer.MAX_VALUE) {
                 return JavaConverters.asScalaIteratorConverter(new ArrayList<Tuple2<Object,Vertex>>().iterator()).asScala();
             } else {
                 //sum of current weight + new weight and add vertex to list
-                Vertex vertex = new Vertex(weight + triplet.srcAttr()._1, triplet.srcAttr()._2);
-                vertex._2.add(triplet.dstId());
+                List<Long> nodes = new ArrayList<>(triplet.srcAttr()._2);
+                nodes.add(triplet.dstId());
+                Vertex vertex = new Vertex(triplet.srcAttr()._1 + weight, nodes);
                 return JavaConverters.asScalaIteratorConverter(Arrays.asList(new Tuple2<Object,Vertex>(triplet.dstId(), vertex)).iterator()).asScala();
             }
         }
@@ -68,8 +68,11 @@ public class Exercise_3 {
                 .put(6l, "F")
                 .build();
 
+        List<Long> startList = new ArrayList<>();
+        startList.add(1l);
+
         List<Tuple2<Object,Vertex>> vertices = Lists.newArrayList(
-                new Tuple2<Object,Vertex>(1l,new Vertex(0)),
+                new Tuple2<Object,Vertex>(1l,new Vertex(0, startList)),
                 new Tuple2<Object,Vertex>(2l,new Vertex(Integer.MAX_VALUE)),
                 new Tuple2<Object,Vertex>(3l,new Vertex(Integer.MAX_VALUE)),
                 new Tuple2<Object,Vertex>(4l,new Vertex(Integer.MAX_VALUE)),
@@ -110,7 +113,7 @@ public class Exercise_3 {
                         if (i!=0) result+=",";
                         result+=labels.get(vertex._2._2.get(i));
                     }
-                    result += "] with cost: "+vertex._2._1;
+                    result += "] with cost "+vertex._2._1;
                     System.out.println(result);
                 });
     }
