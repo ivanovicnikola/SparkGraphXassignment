@@ -2,7 +2,6 @@ package exercise_3;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import exercise_2.Exercise_2;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.graphx.*;
