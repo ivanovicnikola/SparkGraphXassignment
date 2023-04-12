@@ -101,7 +101,7 @@ public class Exercise_2 {
                 new merge(),
                 ClassTag$.MODULE$.apply(Integer.class))
             .vertices()
-            .toJavaRDD()
+            .toJavaRDD().sortBy(v -> ((Tuple2<Object,Integer>)v)._2, true, 1)
             .foreach(v -> {
                 Tuple2<Object,Integer> vertex = (Tuple2<Object,Integer>)v;
                 System.out.println("Minimum cost to get from "+labels.get(1l)+" to "+labels.get(vertex._1)+" is "+vertex._2);
