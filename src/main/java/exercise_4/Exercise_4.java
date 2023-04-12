@@ -15,6 +15,7 @@ import org.graphframes.lib.PageRank;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Exercise_4 {
@@ -76,10 +77,31 @@ public class Exercise_4 {
 		gf.edges().show();
 		gf.vertices().show();
 
-		PageRank pRank = gf.pageRank().resetProbability(0.01).maxIter(5);
-		Dataset<Row> articles = pRank.run().vertices().select("id", "pagerank");
+		//optimal number of iterations and dumping factor
+		List<Row> twoAgo = null;
+		List<Row> lastIteration = null;
+		int maxIterations = 1;
 
-		Dataset<Row> mostRelevantArticles = articles.sort(org.apache.spark.sql.functions.desc("pagerank"));
-		mostRelevantArticles.show(10);
+		for (int j = 1; j <= 20; j++) {
+			PageRank pRank = gf.pageRank().resetProbability(0.15).maxIter(j);
+			Dataset<Row> articles = pRank.run().vertices().select("id", "pagerank");
+
+			Dataset<Row> mostRelevantArticles = articles.sort(org.apache.spark.sql.functions.desc("pagerank"));
+			List<Row> thisIteration = mostRelevantArticles.select("id").limit(10).collectAsList();
+			System.out.println("Damping factor: " + 0.85 + ", number of iterations: " + j + "\n");
+			mostRelevantArticles.show(10);
+			if (thisIteration.equals(twoAgo)) {
+				maxIterations = j-2;
+				break;
+			}
+			if (thisIteration.equals(lastIteration)) {
+				maxIterations = j-1;
+				break;
+			}
+			twoAgo = lastIteration;
+			lastIteration = thisIteration;
+		}
+
+		System.out.println("Damping factor: " + 0.85 + ", number of iterations: " + maxIterations + "\n");
 	}
 }
