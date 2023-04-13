@@ -22,7 +22,7 @@ public class Exercise_4 {
 	
 	public static void wikipedia(JavaSparkContext ctx, SQLContext sqlCtx) {
 		java.util.List<Row> vertices_list = new ArrayList<Row>();
-		File vertices_file = new File("C:\\Users\\Bogdana\\Desktop\\UPC\\Semantic_Data_Management\\SparkGraphXassignment\\src\\main\\resources\\wiki-vertices.txt");
+		File vertices_file = new File("src\\main\\resources\\wiki-vertices.txt");
 
 		Scanner myReaderVertices = null;
 		try {
@@ -47,7 +47,7 @@ public class Exercise_4 {
 
 		java.util.List<Row> edges_list = new ArrayList<Row>();
 
-		File edges_file = new File("C:\\Users\\Bogdana\\Desktop\\UPC\\Semantic_Data_Management\\SparkGraphXassignment\\src\\main\\resources\\wiki-edges.txt");
+		File edges_file = new File("src\\main\\resources\\wiki-edges.txt");
 
 		Scanner myReaderEdges = null;
 		try {
@@ -77,7 +77,7 @@ public class Exercise_4 {
 		gf.edges().show();
 		gf.vertices().show();
 
-		//optimal number of iterations and dumping factor
+		//optimal number of iterations
 		List<Row> twoAgo = null;
 		List<Row> lastIteration = null;
 		int maxIterations = 1;
